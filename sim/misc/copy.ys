@@ -1,0 +1,54 @@
+# Execution begins at address 0
+	.pos	0
+	irmovq	stack,%rsp	#set up stack pointer
+	call	main		#Execute main program
+	halt			#Terminate program
+
+# the blocks for test
+	.align	8
+# Source block
+src:
+	.quad	0x00a
+	.quad	0x0b0
+	.quad	0xc00
+
+# Destination block
+dest:
+	.quad	0x111
+	.quad	0x222
+	.quad	0x333
+
+main:
+	irmovq	src,%rdi	# pass the param
+	irmovq	dest,%rsi
+	irmovq	$3,%rdx
+	call	copy_block
+	ret
+
+copy_block:
+	irmovq	$0,%rax
+	irmovq	$0,%r10		#%r10 would be use as constant 0
+	irmovq	$1,%r11		#%r11 would be used as constant 1
+	irmovq	$8,%rcx		# %rcx would be used as constant 8
+	jmp	test
+
+loop:
+	mrmovq	(%rdi),%r8
+	addq	%rcx,%rdi	
+	rmmovq	%r8,(%rsi)
+	addq	%rcx,%rsi
+	xorq	%r8,%rax
+	subq	%r11,%rdx
+
+
+test:
+	subq	%r10,%rdx
+	jg	loop
+
+	ret
+
+
+
+# Stack starts here and grows to lower address
+	.pos	0x200
+stack:
