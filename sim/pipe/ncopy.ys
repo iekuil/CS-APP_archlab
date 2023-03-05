@@ -19,22 +19,91 @@ ncopy:
 	xorq	%rax,%rax		# count = 0;
 	# andq	%rdx,%rdx		# len <= 0?
 	# jle	Done		# if so, goto Done:
-	jmp	Test
+	jmp	Test_8
+Loop_8:
+	mrmovq	(%rdi),%r10
+	mrmovq	8(%rdi),%r11
+	rmmovq	%r10, (%rsi)
+	rmmovq	%r11,8(%rsi)
+	andq	%r10, %r10
+	jle	Npos_8_1
+	iaddq	$1, %rax
 
-Loop:	mrmovq	(%rdi), %r10	# read val from src...
+Npos_8_1:
+	andq	%r11, %r11
+	jle	Npos_8_2
+	iaddq	$1, %rax
+
+Npos_8_2:
+	mrmovq	16(%rdi),%r10
+	mrmovq	24(%rdi),%r11
+	rmmovq	%r10,16(%rsi)
+	rmmovq	%r11,24(%rsi)
+	andq	%r10, %r10
+	jle	Npos_8_3
+	iaddq	$1, %rax
+
+Npos_8_3:
+	andq	%r11, %r11
+	jle	Npos_8_4
+	iaddq	$1, %rax
+
+Npos_8_4:
+	mrmovq	32(%rdi),%r10
+	mrmovq	40(%rdi),%r11
+	rmmovq	%r10,32(%rsi)
+	rmmovq	%r11,40(%rsi)
+	andq	%r10, %r10
+	jle	Npos_8_5
+	iaddq	$1, %rax
+
+Npos_8_5:
+	andq	%r11, %r11
+	jle	Npos_8_6
+	iaddq	$1,%rax
+
+Npos_8_6:
+	mrmovq	48(%rdi),%r10
+	mrmovq	56(%rdi),%r11
+	rmmovq	%r10,48(%rsi)
+	rmmovq	%r11,56(%rsi)
+	andq	%r10, %r10
+	jle	Npos_8_7
+	iaddq	$1, %rax
+
+Npos_8_7:
+	andq	%r11, %r11
+	jle	Npos_8_8
+	iaddq	$1,%rax
+
+Npos_8_8:
+	iaddq	$48, %rdi
+	iaddq	$48, %rsi		
+
+Test_8:
+	iaddq	$0xFFFFFFFFFFFFFFF8,%rdx
+	jge	Loop_8	
+
+
+	iaddq	$8,%rdx
+	jmp	Test_2
+
+Loop_2:
+	mrmovq	(%rdi), %r10	# read val from src...
 	mrmovq	8(%rdi),%r11
 	rmmovq	%r10, (%rsi)	# ...and store it to dst
 	rmmovq	%r11,8(%rsi)
 	andq	%r10, %r10		# val <= 0?
-	jle	Next		# if so, goto Npos:
+	jle	Npos_2_1		# if so, goto Npos:
 	# irmovq $1, %r10
 	# addq %r10, %rax		# count++
 	iaddq	$1, %rax
 
-Next:	andq	%r11, %r11
-	jle	Npos
+Npos_2_1:
+	andq	%r11, %r11
+	jle	Npos_2_2
 	iaddq	$1, %rax
-Npos:	
+Npos_2_2:	
 	# irmovq	$1, %r10
 	# subq	%r10, %rdx		# len--
 	# iaddq	$0xFFFFFFFFFFFFFFFE,%rdx
@@ -45,9 +114,9 @@ Npos:
 	iaddq	$16,%rsi
 	# andq	%rdx,%rdx		# len > 0?
 
-Test:
+Test_2:
 	iaddq	$0xFFFFFFFFFFFFFFFE,%rdx
-	jge	Loop			# if so, goto Loop:
+	jge	Loop_2			# if so, goto Loop:
 
 Finish:
 
